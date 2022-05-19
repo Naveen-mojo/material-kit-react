@@ -1,17 +1,19 @@
 import * as Yup from 'yup';
-import { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { useFormik, Form, FormikProvider } from 'formik';
 // material
 import { Link, Stack, Checkbox, TextField, IconButton, InputAdornment, FormControlLabel } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 // component
+import { toast } from 'react-toastify';
 import Iconify from '../../../components/Iconify';
+
+import { AuthContext } from '../../../context/AuthContext';
 
 // ----------------------------------------------------------------------
 
 export default function LoginForm() {
-  const navigate = useNavigate();
 
   const [showPassword, setShowPassword] = useState(false);
 
@@ -22,14 +24,9 @@ export default function LoginForm() {
 
   const formik = useFormik({
     initialValues: {
-      email: '',
-      password: '',
       remember: true,
     },
     validationSchema: LoginSchema,
-    onSubmit: () => {
-      navigate('/dashboard', { replace: true });
-    },
   });
 
   const { errors, touched, values, isSubmitting, handleSubmit, getFieldProps } = formik;
@@ -38,26 +35,30 @@ export default function LoginForm() {
     setShowPassword((show) => !show);
   };
 
+  const { loginUser, error, loadingbutton } = useContext(AuthContext);
+
+
   return (
     <FormikProvider value={formik}>
-      <Form autoComplete="off" noValidate onSubmit={handleSubmit}>
+      <Form autoComplete="off" noValidate onSubmit={loginUser}>
         <Stack spacing={3}>
           <TextField
             fullWidth
             autoComplete="username"
             type="email"
+            name="email"
             label="Email address"
-            {...getFieldProps('email')}
             error={Boolean(touched.email && errors.email)}
             helperText={touched.email && errors.email}
           />
+          <small className='text-danger mt-0'>{error.email}</small>
 
           <TextField
             fullWidth
             autoComplete="current-password"
             type={showPassword ? 'text' : 'password'}
+            name='password'
             label="Password"
-            {...getFieldProps('password')}
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">
@@ -70,6 +71,8 @@ export default function LoginForm() {
             error={Boolean(touched.password && errors.password)}
             helperText={touched.password && errors.password}
           />
+          <small className='text-danger mt-0'>{error.password}</small>
+          <small className='text-danger mt-0'>{error.non_field_error}</small>
         </Stack>
 
         <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ my: 2 }}>
@@ -84,6 +87,9 @@ export default function LoginForm() {
         </Stack>
 
         <LoadingButton fullWidth size="large" type="submit" variant="contained" loading={isSubmitting}>
+          {loadingbutton ?
+            <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true" />
+            : ''}
           Login
         </LoadingButton>
       </Form>
