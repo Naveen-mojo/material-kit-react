@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { CsvToHtmlTable } from 'react-csv-to-table';
 
 function UploadFile() {
 
   const [file, setFile] = useState(null);
+  const [tag, setTag] = useState("fashionsootra-21");
   const [loadingbutton, setLoadingButton] = useState(false)
   const [submitButton, setSubmitButton] = useState(false)
   const [data, setData] = useState(null)
@@ -15,12 +15,17 @@ function UploadFile() {
     setSubmitButton(false)
   }
 
+  const tagName = (event) => {
+    setTag(event.target.value)
+  }
+
   const fileUpload = (e) => {
     e.preventDefault();
     setLoadingButton(true)
     setLoadingButton(true)
     const formdata = new FormData();
-    formdata.append("file", file);
+    formdata.append("file", file)
+    formdata.append("tagname", tag)
 
     const requestOptions = {
       method: 'POST',
@@ -32,10 +37,10 @@ function UploadFile() {
       .then(response => response)
       .then(result => {
         console.log(result)
-        if(result.status === 200){
+        if (result.status === 200) {
           toast("Successfully upload the data")
         }
-        if(result.status === 500){
+        if (result.status === 500) {
           toast("Something went wrong please try again later!")
         }
         setLoadingButton(false)
@@ -46,30 +51,11 @@ function UploadFile() {
       });
   }
 
-  const sampleData = `
-  Please First Upload The File 
-  `;
-
-  // const tableData = () => {
-  //   const requestOptions = {
-  //     method: 'GET',
-  //     redirect: 'follow'
-  //   };
-
-  //   fetch("http://127.0.0.1:8000/api/user/tabledata/", requestOptions)
-  //     .then(response => response.text())
-  //     .then(result => {
-  //       setData(result)
-  //       console.log(result)
-  //     })
-  //     .catch(error => console.log('error', error));
-  // }
-
   return (
     <>
       <div className='container'>
         <div className='row'>
-          <div className='col-md-5'>
+          <div className='col-md-8'>
             <div className="mb-3">
               <div className='fw-bold h5 mb-3 mt-2'>Upload File</div>
               <form onSubmit={fileUpload}>
@@ -77,7 +63,10 @@ function UploadFile() {
                   <div className='flex-grow-1'>
                     <input className="form-control" onChange={FileName} accept='.csv' type="file" id="formFile" required />
                   </div>
-                  <div className=' ms-3'>
+                  <div className='ms-5'>
+                    <input className="form-control" placeholder='Enter Tag' onChange={tagName} value={tag} type="text" id="tagID" />
+                  </div>
+                  <div className=' ms-5'>
                     <button className='btn btn-success' disabled={submitButton}>
                       {loadingbutton ?
                         <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" />
@@ -89,17 +78,10 @@ function UploadFile() {
               </form>
             </div>
           </div>
-          <div className='col-md-7 mt-5'>
-            <a href='http://127.0.0.1:8000/api/user/csvfile/' className='btn btn-success ms-5'>Download CSV</a>
+          <div className='mt-5'>
+            <a href='http://127.0.0.1:8000/api/user/csvfile/' className='btn btn-success ms-1'>Download CSV</a>
           </div>
           <ToastContainer />
-        </div>
-        <div>
-          {/* <CsvToHtmlTable
-            data={data || sampleData}
-            csvDelimiter=","
-            tableClassName="table text-center w-100 mt-3"
-          /> */}
         </div>
       </div>
     </>
